@@ -15,8 +15,12 @@ include_once('classes/abstractJsonApi.class.php');
 **/
 class jsonApi extends abstractJsonApi
 {
-    /* DAO object */
-    private $dao;
+    /* DAO getter */
+    private function dao() {
+
+        return new realtimeDao('/purpleApi/server/cache/');
+        //return new new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
+    }
 
     /* The files to include to play with */
     protected $dependencies =
@@ -33,21 +37,10 @@ class jsonApi extends abstractJsonApi
         );
 
     /**
-     * Place here all your database connection stuff
-    **/
-    private function SetDbStuff()
-    {
-        $this->dao = new realtimeDao('/purpleApi/server/cache/');
-        //$this->dao = new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
-    }
-
-    /**
      * Default constructor 
     **/
     function __construct()
-    {
-        $this->ResolveDependencies();
-        $this->SetDbStuff();
+    {        
         parent::__construct();
     }
 
@@ -66,12 +59,8 @@ class jsonApi extends abstractJsonApi
         foreach ($users as $key => $value) 
             $value->privateKey = hash_hmac('sha256', $value->encryptedPassword, $authSalt);
 
-
-
         //purpleDebug::print_r($users);
-            
-        
-        
+
         // Seek for private key corresponding to user if login/pwd correct
         foreach ($users as $value) 
         if ($value->username == $username && $value->encryptedPassword == $encryptedPassword)        
@@ -88,7 +77,7 @@ class jsonApi extends abstractJsonApi
     **/
     public function fruitlistAction() 
     {
-        return $this->dao->listFruitEntities();
+        return $this->dao()->listFruitEntities();
     }
 
     /**
@@ -97,7 +86,7 @@ class jsonApi extends abstractJsonApi
     public function fruitlistpersistentAction() 
     {
         $clientListTime = purpleTools::sanitizeString($_GET['generationTime']);
-        return $this->dao->listFruitEntitiesLongTimePooling($clientListTime);
+        return $this->dao()->listFruitEntitiesLongTimePooling($clientListTime);
     }
     
     /**
@@ -108,7 +97,7 @@ class jsonApi extends abstractJsonApi
         $fruitName = purpleTools::sanitizeString($_POST['Name']);
         $fruitQuantity = purpleTools::sanitizeString($_POST['Quantity']);
         $fruitTypeId = purpleTools::sanitizeString($_POST['TypeId']);
-        $this->dao->addFruitEntity(new FruitEntity($fruitName, $fruitQuantity, $fruitTypeId));
+        $this->dao()->addFruitEntity(new FruitEntity($fruitName, $fruitQuantity, $fruitTypeId));
         return "Ok";
     }
 
@@ -118,7 +107,7 @@ class jsonApi extends abstractJsonApi
     public function removefruitAction() 
     {
         $fruitId = purpleTools::sanitizeString($_POST['FruitId']);
-        $this->dao->removeFruitEntity($fruitId);
+        $this->dao()->removeFruitEntity($fruitId);
         return "Ok";
     }
     

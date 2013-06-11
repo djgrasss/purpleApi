@@ -21,6 +21,7 @@
     <script src="client/js/knockoutExtensions.js"></script>
     <script src="client/js/cryptojs/sha1.js"></script>
     <script src="client/js/cryptojs/sha256.js"></script>
+    <script src="client/js/cryptojs/hmac-sha256.js"></script>
     
     <script src="client/js/behavior.js"></script>
     <script type="text/javascript">

@@ -13,7 +13,7 @@ function myViewModel() {
     self.FruitEntity = { Name : ko.observable(''), Quantity : ko.observable(''), TypeId : ko.observable() }    
     //// !Fruits
     //// User
-    self.User = { username:ko.observable(), password:ko.observable() };
+    self.User = { username:ko.observable('eka808'), password:ko.observable('foobar') };
     //// !User
 
     // List of the application pages and current page id
@@ -71,12 +71,18 @@ function myViewModel() {
     /** Method to add a fruit by calling the json service **/
     self.submitAddLine = function(obj)
     {
-        var params = self.FruitEntity;
+        var params = ko.toJS(self.FruitEntity);
+        /*
         ko.Purple.jsonCall(
             baseServiceUrl + '?action=ADDFRUIT', 
-            ko.toJS(params),
+            params,
             function(data) { self.fetchFruitsTable(); },
             'POST'
+        );
+        */
+            var hash = CryptoJS.HmacSHA256(params, "Secret Passphrase");
+        console.log(
+            hash
         );
     };   
     
@@ -113,6 +119,7 @@ function myViewModel() {
         }
         // Set the private key locally
         privateKey = data.PrivateKey;
+        //console.log(privateKey);
     }
 
 

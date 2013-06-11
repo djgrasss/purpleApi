@@ -22,6 +22,8 @@ abstract class abstractJsonApi
 	**/
     function __construct()
     {
+        $this->ResolveDependencies();
+
         purpleTools::initDebug();
 
         header('Content-type: application/json');
