@@ -7,14 +7,14 @@ function myViewModel() {
     //
     // Public properties
     //
-    self.GenerationTime = ko.observable();
-    self.EntityList = ko.observableArray();
-    self.Entity =         
-        {
-            Name : ko.observable('RandomFruit')
-            ,Quantity : ko.observable('10')
-            ,TypeId : ko.observable()
-        }
+    //// Fruits 
+    self.FruitEntityListGenerationTime = ko.observable();
+    self.FruitEntityList = ko.observableArray();
+    self.FruitEntity = { Name : ko.observable(''), Quantity : ko.observable(''), TypeId : ko.observable() }    
+    //// !Fruits
+    //// User
+    self.User = { username:ko.observable(), password:ko.observable() };
+    //// !User
 
     // List of the application pages and current page id
     self.CurrentPageKey = ko.observable();
@@ -23,19 +23,17 @@ function myViewModel() {
     // 
     // Private Properties
     //
-    var serverIpPort; //defined by constructor
     var baseServiceUrl; //defined by constructor
     var useRealTime = false;
+
+    var privateKey = null;
 
     // 
     // Constructor 
     //
-    self.init = function(currentServerIpPort) {
-        
-        // Propagate the server ip & port got by viewmodel instanciation
-        serverIpPort = currentServerIpPort;
+    self.init = function(currentServerIpPort) {        
         // Propagate the base service Url
-        baseServiceUrl = "http://" + serverIpPort + "/purpleApi/server/jsonapi.php";        
+        baseServiceUrl = "http://" + currentServerIpPort + "/purpleApi/server/jsonapi.php";        
         // In case of refresh, do that to be sure that needed data is loaded
         loadPageSpecificStuff(self.CurrentPageKey());
     };
@@ -43,89 +41,87 @@ function myViewModel() {
     // 
     // Public Methods 
     //
-        
-    /** 
-     * Refresh the html table of fruit list
-    **/
-    self.fetchFruitsTable = function()
+    self.UserLogin = function()
     {        
-        var url = baseServiceUrl;
-        var params = 
-            {
-                action:'FRUITLIST'
-            };
+        var params = { 
+            action:'GETPRIVATEKEY', 
+            username:self.User.username, 
+            encryptedPassword:"" + CryptoJS.SHA1(self.User.password()) //Encrypt the password before passing
+        };
         ko.Purple.jsonCall(
-            url, 
+            baseServiceUrl, 
+            ko.toJS(params), 
+            function(data) { UserLoginCallBack(data); },
+            'GET'
+        );        
+    }
+
+    /** Refresh the html table of fruit list **/
+    self.fetchFruitsTable = function()
+    {                
+        var params = { action:'FRUITLIST' };
+        ko.Purple.jsonCall(
+            baseServiceUrl, 
             params, 
             function(data) { feedTableFromData(data); },
             'GET'
         );
     };
 
-    /**
-     * Method to add a fruit by calling the json service
-    **/
+    /** Method to add a fruit by calling the json service **/
     self.submitAddLine = function(obj)
     {
-        var url = baseServiceUrl + '?action=ADDFRUIT';
-        var params = self.Entity;
+        var params = self.FruitEntity;
         ko.Purple.jsonCall(
-            url, 
+            baseServiceUrl + '?action=ADDFRUIT', 
             ko.toJS(params),
             function(data) { self.fetchFruitsTable(); },
             'POST'
         );
     };   
     
-    /**
-     * Method to remove a fruit by calling the json service
-    **/
+    /** Method to remove a fruit by calling the json service **/
     self.submitRemoveLive = function(obj) 
     {
-        var url = baseServiceUrl + '?action=REMOVEFRUIT';
         var params = { FruitId:obj.Id };
         ko.Purple.jsonCall(
-            url, 
+            baseServiceUrl + '?action=REMOVEFRUIT', 
             params, 
             function(data) { self.fetchFruitsTable(); },
             'POST'
         );
     };
 
-    /**
-     * Callback function of the autocomplete
-    **/
-    self.FruitTypeAutocompleteSelect = function(item) 
+    /** Callback function of the autocomplete **/
+    self.FruitTypeAutocompleteSelect = function(data) 
     {
-        //console.log(item);
+        //console.log(data);
     };
-
-    /**
-     * Change page event from the menu
-    **/
-    self.changePage = function(curPage) 
-    { 
-        // Tell sammy that the current page selected is curPage
-        location.hash = curPage;
-    };    
 
     // 
     // Private Methods 
     //
 
-    /**
-     * Long time pooling ajax call for fetching table
-    **/
+    /** Callback after try to login the user */
+    var UserLoginCallBack = function(data)
+    {
+        // Manage the bad authentication return
+        if (data == "IncorrectAuthParameters")
+        {
+            alert("Incorrect username/password");
+            return;
+        }
+        // Set the private key locally
+        privateKey = data.PrivateKey;
+    }
+
+
+    /** Long time pooling ajax call for fetching table **/
     var fetchFruitsTableRealtime = function()
     {
-        var url = baseServiceUrl;
-        var params = 
-            {
-                action:'FRUITLISTPERSISTENT',
-                generationTime:self.GenerationTime()
-            };
+        var params = { action:'FRUITLISTPERSISTENT', generationTime:self.FruitEntityListGenerationTime() };
         ko.Purple.jsonCall(
-            url, 
+            baseServiceUrl, 
             ko.toJS(params), 
             function(data) { 
                 feedTableFromData(data); 
@@ -138,15 +134,14 @@ function myViewModel() {
         );
     };
     
-    /**
-     * Utility method to get feed the view with the data got from ajax call
-    **/
+    /** Utility method to get feed the view with the data got from ajax call **/
     var feedTableFromData = function(data)
     {
-        self.GenerationTime(data.generationTime);
-        self.EntityList(ko.Purple.objToArray(data.data.FruitList));
+        self.FruitEntityListGenerationTime(data.generationTime);
+        self.FruitEntityList(ko.Purple.objToArray(data.data.FruitList));
     };
 
+    /** Load data specific to each page **/
     var loadPageSpecificStuff = function(data)
     {
         switch(data)
@@ -172,12 +167,14 @@ function myViewModel() {
             self.CurrentPageKey(curPageLocal);
         });
         //Default routing
-        this.get('', function() { this.app.runRoute('get', '#curPage') });
-    }).run();    
+        this.get('', function() { this.app.runRoute('get', '#Home') });
+    }).run();
+
+    /** Change page event from the menu, Tell sammy that the current page selected is curPage **/
+    self.changePage = function(curPage) { location.hash = curPage; };    
 
     // 
     // Events
     //
-
     this.CurrentPageKey.subscribe(function(data) { loadPageSpecificStuff(data); });
 };

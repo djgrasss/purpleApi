@@ -19,6 +19,8 @@
     <script src="client/js/bootstrap.min.js"></script>
     <script src="client/js/purpleFunctions.js"></script>
     <script src="client/js/knockoutExtensions.js"></script>
+    <script src="client/js/cryptojs/sha1.js"></script>
+    <script src="client/js/cryptojs/sha256.js"></script>
     
     <script src="client/js/behavior.js"></script>
     <script type="text/javascript">
@@ -46,12 +48,18 @@
         </div>
     </div>
 
+    <!-- Home page -->
+    <div class='container' data-bind="visible:CurrentPageKey() == 'Home'">
+        <input class="span2" placeholder="username" data-bind="value:User.username" type="text"><br />
+        <input class="span2" placeholder="password" data-bind="value:User.password" type="password"><br />
+        <button type="submit" class="btn" data-bind="click:UserLogin">Sign in</button>
+    </div>
     <!-- Fruits page -->
     <div class='container' data-bind="visible:CurrentPageKey() == 'Fruits'">
 
         <button id='refreshFruitTable' class='btn' data-bind='click:fetchFruitsTable'><i class="icon-refresh"></i></button>
-        <!--<div>Generation timestamp : <apan id='generationTimelbl' data-bind='text:GenerationTime'></span></div>-->
-        <table class='table table-striped table-bordered' id='fruitTable' data-bind="with:EntityList /*, visible:EntityList().length > 0*/">
+        <!--<div>Generation timestamp : <apan id='FruitEntityListGenerationTimelbl' data-bind='text:FruitEntityListGenerationTime'></span></div>-->
+        <table class='table table-striped table-bordered' id='fruitTable' data-bind="with:FruitEntityList /*, visible:FruitEntityList().length > 0*/">
             <thead>
                 <tr>
                     <th>Fruit</th>
@@ -69,11 +77,11 @@
 
         
         <label>Fruit</label>
-        <input type='text' data-bind='value:Entity.Name' />
+        <input type='text' data-bind='value:FruitEntity.Name' />
         <label>Quantity</label>
-        <input type='text' data-bind='value:Entity.Quantity' />
+        <input type='text' data-bind='value:FruitEntity.Quantity' />
         <label>Type</label>
-        <input type="text" data-bind="value:Entity.TypeId, autoComplete:{url:'server/jsonapi.php?action=FRUITTYPELIST', backFunction:$root.FruitTypeAutocompleteSelect}">
+        <input type="text" data-bind="value:FruitEntity.TypeId, autoComplete:{url:'server/jsonapi.php?action=FRUITTYPELIST', backFunction:$root.FruitTypeAutocompleteSelect}">
         <br />
         <button class='btn btn-primary' data-bind="click:submitAddLine">Add</button>    
     </div>

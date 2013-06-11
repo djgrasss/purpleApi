@@ -59,18 +59,25 @@ class jsonApi extends abstractJsonApi
         $username = strtolower(purpleTools::sanitizeString($_GET['username']));
         $encryptedPassword = purpleTools::sanitizeString($_GET['encryptedPassword']);
 
-        //TMP
-        $users[] = (object)['username'=>strtolower('eka808'), 'encryptedPassword'=>sha1('foobar')];
-        //purpleDebug::print_r($users);
-        //purpleDebug::print_r([$username, $encryptedPassword]);
-        //TMP
+        //Define user list with corresponding private keys
+        $authSalt = 'aMJhljaB1cD2eF3GkHNlklkb564464';
+        $users[] = (object)['username'=>strtolower('eka808'), 'encryptedPassword'=>sha1('foobar'), 'privateKey'=>  null];
+        $users[] = (object)['username'=>strtolower('kaZ'), 'encryptedPassword'=>sha1('foodsfdbar'), 'privateKey'=>  null];        
+        foreach ($users as $key => $value) 
+            $value->privateKey = hash_hmac('sha256', $value->encryptedPassword, $authSalt);
 
+
+
+        //purpleDebug::print_r($users);
+            
+        
+        
+        // Seek for private key corresponding to user if login/pwd correct
         foreach ($users as $value) 
-        if ($value->username == $username)
-        if ($value->encryptedPassword == $encryptedPassword)
+        if ($value->username == $username && $value->encryptedPassword == $encryptedPassword)        
         {
             $obj = new stdClass();
-            $obj->PrivateKey = "1";
+            $obj->PrivateKey = $value->privateKey;
             return $obj;
         }
         return "IncorrectAuthParameters";
