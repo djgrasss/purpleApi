@@ -37,7 +37,7 @@ class jsonApi extends abstractJsonApi
     **/
     private function SetDbStuff()
     {
-        $this->dao = new realtimeDao('/purpleSoa/server/cache/');
+        $this->dao = new realtimeDao('/purpleApi/server/cache/');
         //$this->dao = new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
     }
 

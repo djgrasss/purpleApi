@@ -35,7 +35,7 @@ function myViewModel() {
         // Propagate the server ip & port got by viewmodel instanciation
         serverIpPort = currentServerIpPort;
         // Propagate the base service Url
-        baseServiceUrl = "http://" + serverIpPort + "/purpleSoa/server/jsonapi.php";        
+        baseServiceUrl = "http://" + serverIpPort + "/purpleApi/server/jsonapi.php";        
         // In case of refresh, do that to be sure that needed data is loaded
         loadPageSpecificStuff(self.CurrentPageKey());
     };
