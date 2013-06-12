@@ -61,33 +61,34 @@ catch (PurpleUnknownRouteException $e)
 /*
 PurpleDebug::print_r();
 */
-$obj = (object)['foo' => "hi there"	];
+$obj = (object)['foo' => "hi there", 'x' => [1,2]	];
 $objAsArray = (array)$obj;
 $objAsQueryString = http_build_query($objAsArray, '', '&amp;', PHP_QUERY_RFC3986);
 $encryptedPassword="123456";
 $objHash = hash_hmac('sha256', $objAsQueryString, $encryptedPassword);
 
-purpleDebug::print_r("Server side");
-purpleDebug::print_r($objAsQueryString);
-purpleDebug::print_r($objHash);
+echo ("ServerSide");
+echo ("<br />");
+echo($objAsQueryString);
+echo ("<br />");
+echo($objHash);
+echo ("<br />");
 
 //PurpleDebug::print_r('allolemonde');
 ?>
+<script src="client/js/knockout-2.2.1.js"></script>
+<script src="client/js/purpleFunctions.js"></script>
+<script src="client/js/jquery-1.9.1.min.js"></script>
 <script src="client/js/cryptojs/hmac-sha256.js"></script>
-<script>
-serialize = function(obj, prefix) {
-    var str = [];
-    for(var p in obj) {
-        var k = prefix ? prefix + "[" + p + "]" : p, v = obj[p];
-        str.push(typeof v == "object" ? 
-            serialize(v, k) :
-            encodeURIComponent(k) + "=" + encodeURIComponent(v));
-    }
-    return str.join("&");
-}
-
-var data = serialize({foo: "hi there"/*, bar: { blah: 123, quux: [1, 2, 3] }*/})
-var hash = CryptoJS.HmacSHA256(data, "123456");
-console.log(data);
-console.log(hash);
+<script type='text/javascript'>
+    $(function () {
+        var clientQueryString = ko.Purple.serialize({foo: "hi there"/*, bar: { blah: 123, quux: [1, 2, 3] }*/})
+        var hash = CryptoJS.HmacSHA256(clientQueryString, "123456");
+        $('#clientstring').html(''+clientQueryString);
+        $('#clienthash').html(''+hash);
+    });
 </script>
+
+Client Side
+<div id='clientstring'></div>
+<div id='clienthash'></div>

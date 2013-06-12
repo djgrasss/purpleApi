@@ -37,6 +37,14 @@ class purpleTools
         return preg_replace('/[^-a-zA-Z0-9_]/', '', $theString);
     }
 
+    public static function sanitizeArray($theArray)
+    {
+        foreach ($theArray as $key => $value)
+            $theArray[$key] = self::sanitizeString($value);
+        return $theArray;
+    }
+
+
     /**
      * Standard debug configuration init
     **/
@@ -61,6 +69,12 @@ class purpleTools
             strstr(serialize($array), ':')
         ));
     }
+
+    static function arrayToQueryString($array)
+    {
+        return http_build_query($array, '', '&', PHP_QUERY_RFC3986);
+    }
+
 
     /**
      * Simply cast an object as a class type

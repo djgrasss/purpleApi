@@ -10,7 +10,7 @@ function myViewModel() {
     //// Fruits 
     self.FruitEntityListGenerationTime = ko.observable();
     self.FruitEntityList = ko.observableArray();
-    self.FruitEntity = { Name : ko.observable(''), Quantity : ko.observable(''), TypeId : ko.observable() }    
+    self.FruitEntity = { Name : ko.observable('AlloLeMonde'), Quantity : ko.observable('12'), TypeId : ko.observable('1') }    
     //// !Fruits
     //// User
     self.User = { username:ko.observable('eka808'), password:ko.observable('foobar') };
@@ -36,6 +36,8 @@ function myViewModel() {
         baseServiceUrl = "http://" + currentServerIpPort + "/purpleApi/server/jsonapi.php";        
         // In case of refresh, do that to be sure that needed data is loaded
         loadPageSpecificStuff(self.CurrentPageKey());
+
+        self.UserLogin(); console.log('===USERLOGINMOCKED===');
     };
 
     // 
@@ -69,20 +71,34 @@ function myViewModel() {
     };
 
     /** Method to add a fruit by calling the json service **/
-    self.submitAddLine = function(obj)
+    self.submitAddLine = function()
     {
-        var params = ko.toJS(self.FruitEntity);
-        /*
+
+
+        var data = ko.toJS(self.FruitEntity);
+        var hash = getObjectHash(data);
+
+        console.log(privateKey,'privateKey');
+
+        var params =
+            {
+                username:self.User.username(),
+                hash:''+hash,
+                data:data
+            };
+
+        console.log(hash,'hash');
+
         ko.Purple.jsonCall(
             baseServiceUrl + '?action=ADDFRUIT', 
-            params,
-            function(data) { self.fetchFruitsTable(); },
+            ko.toJS(params),
+            function(data) { 
+
+                
+
+                //self.fetchFruitsTable(); 
+            },
             'POST'
-        );
-        */
-            var hash = CryptoJS.HmacSHA256(params, "Secret Passphrase");
-        console.log(
-            hash
         );
     };   
     
@@ -99,10 +115,7 @@ function myViewModel() {
     };
 
     /** Callback function of the autocomplete **/
-    self.FruitTypeAutocompleteSelect = function(data) 
-    {
-        //console.log(data);
-    };
+    self.FruitTypeAutocompleteSelect = function(data) { /*console.log(data);*/ };
 
     // 
     // Private Methods 
@@ -119,7 +132,6 @@ function myViewModel() {
         }
         // Set the private key locally
         privateKey = data.PrivateKey;
-        //console.log(privateKey);
     }
 
 
@@ -161,6 +173,21 @@ function myViewModel() {
                     self.fetchFruitsTable();
             break;
         }
+    }
+
+    /** Get the hash on an object **/
+    var getObjectHash = function(data)
+    {
+        if (privateKey == null)
+        {
+            alert('Please login');
+            return;
+        }
+
+        var clientQueryString = ko.Purple.serialize(data);
+        console.log(clientQueryString);
+        var hash = CryptoJS.HmacSHA256(clientQueryString, privateKey);
+        return hash;
     }
 
     //

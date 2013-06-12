@@ -17,16 +17,25 @@ abstract class abstractJsonApi
             ,'FRUITTYPELIST' => 'fruittypelistAction'
         ); */
 
+    protected $securityDao;
+    
 	/**
 	 * Default constructor
 	**/
     function __construct()
     {
+        // Dependencies
         $this->ResolveDependencies();
 
+        // Debug init
         purpleTools::initDebug();
 
+        // Render type
         header('Content-type: application/json');
+
+        // Security layer
+        $this->securityDao = new purpleSecure();
+
         //Routing
         $this->route();
     }

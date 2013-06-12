@@ -12,30 +12,49 @@ include_once('classes/abstractJsonApi.class.php');
  * @version : 0.3
  * @author : eka808 - http://www.yoannmagli.ch
  * @todo : long time pooling for database store
+ * @todo : finish implement authorizations
 **/
 class jsonApi extends abstractJsonApi
 {
     /* DAO getter */
     private function dao() {
-
         return new realtimeDao('/purpleApi/server/cache/');
         //return new new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
     }
 
     /* The files to include to play with */
     protected $dependencies =
-        array(
+        [
             'classes/purpleDebug.class.php'
             ,'interfaces/IDao.interface.php'
             ,'models/FruitEntity.class.php'
             ,'models/PersistenceEntity.class.php'
             ,'classes/purpleTools.class.php'
+            ,'classes/purpleSecure.class.php'
             //,'classes/purpleUi.class.php'
             //,'classes/purpleMath.class.php'
             ,'dao/realtimeDao.class.php'
             ,'dao/databaseDao.class.php'
-        );
+        ];
 
+    private function getUsersArray()
+    {
+        $usersArray =
+            [
+                (object)['username'=>strtolower('eka808'), 'encryptedPassword'=>sha1('foobar'), 'privateKey'=>  null],
+                (object)['username'=>strtolower('kaZ'), 'encryptedPassword'=>sha1('foodsfdbar'), 'privateKey'=>  null]
+            ];
+        $usersArray = $this->securityDao->setPrivateKeysForUsers($usersArray);
+        return $usersArray;
+    }
+
+    private function getUser($userName)
+    {
+        foreach ($this->getUsersArray() as $key => $value)
+        if ($value->username == $userName)
+            return $value;
+    }
+    
     /**
      * Default constructor 
     **/
@@ -43,6 +62,7 @@ class jsonApi extends abstractJsonApi
     {        
         parent::__construct();
     }
+
 
     /** 
      * AUTH : get private key
@@ -52,25 +72,18 @@ class jsonApi extends abstractJsonApi
         $username = strtolower(purpleTools::sanitizeString($_GET['username']));
         $encryptedPassword = purpleTools::sanitizeString($_GET['encryptedPassword']);
 
-        //Define user list with corresponding private keys
-        $authSalt = 'aMJhljaB1cD2eF3GkHNlklkb564464';
-        $users[] = (object)['username'=>strtolower('eka808'), 'encryptedPassword'=>sha1('foobar'), 'privateKey'=>  null];
-        $users[] = (object)['username'=>strtolower('kaZ'), 'encryptedPassword'=>sha1('foodsfdbar'), 'privateKey'=>  null];        
-        foreach ($users as $key => $value) 
-            $value->privateKey = hash_hmac('sha256', $value->encryptedPassword, $authSalt);
-
-        //purpleDebug::print_r($users);
-
-        // Seek for private key corresponding to user if login/pwd correct
-        foreach ($users as $value) 
-        if ($value->username == $username && $value->encryptedPassword == $encryptedPassword)        
+        $userEntity = $this->getUser($username);
+        
+        $privateKey = $this->securityDao->getPrivateKeyIfCoherent($username, $encryptedPassword, $userEntity);
+        if ($privateKey != false)
         {
             $obj = new stdClass();
-            $obj->PrivateKey = $value->privateKey;
+            $obj->PrivateKey = $privateKey;
             return $obj;
         }
         return "IncorrectAuthParameters";
     }
+
 
     /**
      * List fruits action
@@ -94,11 +107,19 @@ class jsonApi extends abstractJsonApi
     **/
     public function addfruitAction() 
     {
-        $fruitName = purpleTools::sanitizeString($_POST['Name']);
-        $fruitQuantity = purpleTools::sanitizeString($_POST['Quantity']);
-        $fruitTypeId = purpleTools::sanitizeString($_POST['TypeId']);
-        $this->dao()->addFruitEntity(new FruitEntity($fruitName, $fruitQuantity, $fruitTypeId));
-        return "Ok";
+        $userName = purpleTools::sanitizeString($_POST['username']);
+        $clientHash = purpleTools::sanitizeString($_POST['hash']);
+        $entity = purpleTools::sanitizeArray($_POST['data']);
+
+        if ($this->securityDao->isauthorized($userName, $clientHash, $entity, $this->getUser($userName)))
+        {
+            $fruitName = $entity['Name'];    
+            $fruitQuantity = $entity['Quantity'];
+            $fruitTypeId = $entity['TypeId'];
+            $this->dao()->addFruitEntity(new FruitEntity($fruitName, $fruitQuantity, $fruitTypeId));
+            return "Ok";
+        }
+        return "Error";
     }
 
     /**
