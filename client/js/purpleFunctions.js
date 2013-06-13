@@ -34,6 +34,7 @@ ko.Purple = new function()
 
         $.ajax({
             type:httpMethod
+            ,dataType: "json"
             ,url:serviceUrl
             ,async:true
             ,cache:false
