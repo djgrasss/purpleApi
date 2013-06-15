@@ -3,6 +3,13 @@
  **/
 function myViewModel() {
     var self = this; 
+    
+    // 
+    // Private Properties
+    //
+    var baseServiceUrl; //defined by constructor
+    var useRealTime = false;
+    var privateKey = ko.observable(null);
 
     //
     // Public properties
@@ -10,23 +17,22 @@ function myViewModel() {
     //// Fruits 
     self.FruitEntityListGenerationTime = ko.observable();
     self.FruitEntityList = ko.observableArray();
-    self.FruitEntity = { Name : ko.observable('AlloLeMonde'), Quantity : ko.observable('12'), TypeId : ko.observable('1') }    
+    self.FruitEntity = { 
+        Name : ko.observable('AlloLeMonde'), 
+        Quantity : ko.observable('12'), 
+        TypeId : ko.observable('1') 
+    };    
     //// !Fruits
     //// User
     self.User = { username:ko.observable('eka808'), password:ko.observable('foobar') };
+    self.IsLogged = ko.computed(function() { 
+        return privateKey() != null;
+    });
     //// !User
 
     // List of the application pages and current page id
     self.CurrentPageKey = ko.observable();
     self.Pages = ['Home','Fruits'];
-
-    // 
-    // Private Properties
-    //
-    var baseServiceUrl; //defined by constructor
-    var useRealTime = false;
-
-    var privateKey = null;
 
     // 
     // Constructor 
@@ -73,31 +79,13 @@ function myViewModel() {
     /** Method to add a fruit by calling the json service **/
     self.submitAddLine = function()
     {
-
-
         var data = ko.toJS(self.FruitEntity);
-        var hash = getObjectHash(data);
-
-        console.log(privateKey,'privateKey');
-
-        var params =
-            {
-                username:self.User.username(),
-                hash:''+hash,
-                data:data
-            };
-
-        console.log(hash,'hash');
+        var params = getEncryptedParamsForData(data);
 
         ko.Purple.jsonCall(
             baseServiceUrl + '?action=ADDFRUIT', 
-            ko.toJS(params),
-            function(data) { 
-
-                
-
-                //self.fetchFruitsTable(); 
-            },
+            params,
+            function(data) { self.fetchFruitsTable(); },
             'POST'
         );
     };   
@@ -105,7 +93,9 @@ function myViewModel() {
     /** Method to remove a fruit by calling the json service **/
     self.submitRemoveLive = function(obj) 
     {
-        var params = { FruitId:obj.Id };
+        var data = { FruitId:obj.Id };
+        var params = getEncryptedParamsForData(data);
+
         ko.Purple.jsonCall(
             baseServiceUrl + '?action=REMOVEFRUIT', 
             params, 
@@ -116,6 +106,7 @@ function myViewModel() {
 
     /** Callback function of the autocomplete **/
     self.FruitTypeAutocompleteSelect = function(data) { /*console.log(data);*/ };
+
 
     // 
     // Private Methods 
@@ -131,9 +122,8 @@ function myViewModel() {
             return;
         }
         // Set the private key locally
-        privateKey = data.PrivateKey;
+        privateKey(data.PrivateKey);
     }
-
 
     /** Long time pooling ajax call for fetching table **/
     var fetchFruitsTableRealtime = function()
@@ -178,17 +168,27 @@ function myViewModel() {
     /** Get the hash on an object **/
     var getObjectHash = function(data)
     {
-        if (privateKey == null)
+        if (privateKey() == null)
         {
             alert('Please login');
             return;
         }
 
         var clientQueryString = ko.Purple.serialize(data);
-        console.log(clientQueryString);
-        var hash = CryptoJS.HmacSHA256(clientQueryString, privateKey);
+        var hash = CryptoJS.HmacSHA256(clientQueryString, privateKey());
         return hash;
     }
+
+    var getEncryptedParamsForData = function(data)
+    {
+        var params =
+            {
+                username : self.User.username(),
+                hash : '' + getObjectHash(data),
+                data : data
+            };
+        return params;
+    };
 
     //
     // Routing

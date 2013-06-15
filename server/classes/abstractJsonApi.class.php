@@ -5,19 +5,8 @@
 **/
 abstract class abstractJsonApi
 {
-
-
-    /* CODE KEPT FOR STRONG ROUTING IF NEEDED
-    protected $routing = 
-        array(
-            'ADDFRUIT' => 'addfruitAction'
-            ,'FRUITLIST' => 'fruitlistAction'
-            ,'FRUITLISTPERSISTENT' => 'fruitlistpersistentAction'
-            ,'REMOVEFRUIT' => 'removefruitAction'
-            ,'FRUITTYPELIST' => 'fruittypelistAction'
-        ); */
-
     protected $securityDao;
+    protected $userDao;
     
 	/**
 	 * Default constructor
@@ -33,8 +22,7 @@ abstract class abstractJsonApi
         // Render type
         header('Content-type: application/json');
 
-        // Security layer
-        $this->securityDao = new purpleSecure();
+        $this->userDao = new userDao();
 
         //Routing
         $this->route();

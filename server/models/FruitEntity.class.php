@@ -24,5 +24,13 @@ class FruitEntity
         if ($_typeId != null)
             $this->TypeId = $_typeId;
     }
+
+    function setFromArray($_array)
+    {
+        //$this->Id = $_array['Id'];
+        $this->Name = $_array['Name'];
+        $this->Quantity = $_array['Quantity'];
+        $this->TypeId = $_array['TypeId'];
+    }
 }
 ?>

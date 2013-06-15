@@ -76,15 +76,16 @@
             </tbody>
         </table>
 
-        
-        <label>Fruit</label>
-        <input type='text' data-bind='value:FruitEntity.Name' />
-        <label>Quantity</label>
-        <input type='text' data-bind='value:FruitEntity.Quantity' />
-        <label>Type</label>
-        <input type="text" data-bind="value:FruitEntity.TypeId, autoComplete:{url:'server/jsonapi.php?action=FRUITTYPELIST', backFunction:$root.FruitTypeAutocompleteSelect}">
-        <br />
-        <button class='btn btn-primary' data-bind="click:submitAddLine">Add</button>    
+        <div data-bind="visible:IsLogged()">        
+            <label>Fruit</label>
+            <input type='text' data-bind='value:FruitEntity.Name' />
+            <label>Quantity</label>
+            <input type='text' data-bind='value:FruitEntity.Quantity' />
+            <label>Type</label>
+            <input type="text" data-bind="value:FruitEntity.TypeId, autoComplete:{url:'server/jsonapi.php?action=FRUITTYPELIST', backFunction:$root.FruitTypeAutocompleteSelect}">
+            <br />
+            <button class='btn btn-primary' data-bind="click:submitAddLine">Add</button>    
+        </div>
     </div>
 </body>
 </html>

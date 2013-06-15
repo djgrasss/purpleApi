@@ -1,43 +1,67 @@
 <?php
 /**
- * 
+ * Implementation of client security
+ * @basedon : http://www.thebuzzmedia.com/designing-a-secure-rest-api-without-oauth-authentication/
+ * @author : eka808
  */
 class purpleSecure
 {
+    /** Salt used for encrpytion **/
 	public $authSalt = 'aMJhljaB1cD2eF3GkHNlklkb564464';
 
 
-	public function isauthorized($userName, $clientHash, $entity, $userEntity)
-    {
-        $entityQueryString = purpleTools::arrayToQueryString($entity);
-        $serverHash = $this->getHashForQueryString($entityQueryString, $userName, $userEntity);
-        return $serverHash == $clientHash;
-    }
+    //
+    // Authentication
+    //
 
+    /**
+     * Define, for a set do users, the private keys
+     * @param array of users : $usersArray : The users array to modify
+     */
     public function setPrivateKeysForUsers($usersArray)
     {
-    	foreach ($usersArray as $key => $value) 
-            $usersArray[$key]->privateKey = hash_hmac('sha256', $value->encryptedPassword, $this->authSalt);
+        foreach ($usersArray as $key => $value) 
+            $usersArray[$key]->privateKey = $this->getPrivateKeyForUser($usersArray[$key]);
         return $usersArray;
     }
 
-    public function getPrivateKeyIfCoherent($username, $encryptedPassword, $userEntity)
-    {
-        if ($userEntity->username == $username && $userEntity->encryptedPassword == $encryptedPassword)        
-        	return $userEntity->privateKey;
-       	return false;
-    }
-
-
+    /**
+     * Return the private key for a user entity
+     * @param  [type] $userEntity [description]
+     * @return [type]             [description]
+     */
     private function getPrivateKeyForUser($userEntity)
     {
-            return hash_hmac('sha256', $userEntity->encryptedPassword, $this->authSalt);
+        return hash_hmac('sha256', $userEntity->encryptedPassword, $this->authSalt);
     }
-    private function getHashForQueryString($queryString, $userName, $userEntity)
-    {
-        $clientPrivateKey = $this->getPrivateKeyForUser($userEntity);
 
-        return hash_hmac('sha256', $queryString, $clientPrivateKey);
+    
+
+    public function checkCredentials($username, $encryptedPassword, $userEntity)
+    {
+        return $username == $username && $userEntity->encryptedPassword == $encryptedPassword;
+    }
+
+    //
+    // Check if authorized
+    //
+
+	public function isauthorized($securedPackageEntity, $userEntity)
+    {
+        $serverHash = $this->getHashForQueryString($securedPackageEntity, $userEntity);
+        return $serverHash == $securedPackageEntity->hash;
+    }
+
+
+
+
+
+
+
+
+    private function getHashForQueryString($securedPackageEntity, $userEntity)
+    {
+        return hash_hmac('sha256', $securedPackageEntity->getDataQueryString(), $userEntity->privateKey);
     }
 }
 

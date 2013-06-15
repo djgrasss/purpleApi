@@ -8,61 +8,48 @@ include_once('classes/abstractJsonApi.class.php');
     |   __/|____/ |__|  |   __/|____/\___  >____|__  /   __/|__|
     |__|                |__|             \/        \/|__|       
 
+ * 
  * API provider of purple framework
  * @version : 0.3
  * @author : eka808 - http://www.yoannmagli.ch
+ * 
  * @todo : long time pooling for database store
  * @todo : finish implement authorizations
+ * 
 **/
 class jsonApi extends abstractJsonApi
 {
     /* DAO getter */
     private function dao() {
+        //return new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
         return new realtimeDao('/purpleApi/server/cache/');
-        //return new new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
     }
 
     /* The files to include to play with */
     protected $dependencies =
         [
             'classes/purpleDebug.class.php'
+            ,'classes/purpleTools.class.php'
             ,'interfaces/IDao.interface.php'
             ,'models/FruitEntity.class.php'
             ,'models/PersistenceEntity.class.php'
-            ,'classes/purpleTools.class.php'
-            ,'classes/purpleSecure.class.php'
             //,'classes/purpleUi.class.php'
             //,'classes/purpleMath.class.php'
             ,'dao/realtimeDao.class.php'
             ,'dao/databaseDao.class.php'
+            ,'dao/userDao.class.php'
+            ,'models/securedPackageEntity.class.php'
         ];
 
-    private function getUsersArray()
-    {
-        $usersArray =
-            [
-                (object)['username'=>strtolower('eka808'), 'encryptedPassword'=>sha1('foobar'), 'privateKey'=>  null],
-                (object)['username'=>strtolower('kaZ'), 'encryptedPassword'=>sha1('foodsfdbar'), 'privateKey'=>  null]
-            ];
-        $usersArray = $this->securityDao->setPrivateKeysForUsers($usersArray);
-        return $usersArray;
-    }
-
-    private function getUser($userName)
-    {
-        foreach ($this->getUsersArray() as $key => $value)
-        if ($value->username == $userName)
-            return $value;
-    }
+    private $usersArray;
     
     /**
      * Default constructor 
     **/
     function __construct()
-    {        
+    {
         parent::__construct();
     }
-
 
     /** 
      * AUTH : get private key
@@ -72,14 +59,10 @@ class jsonApi extends abstractJsonApi
         $username = strtolower(purpleTools::sanitizeString($_GET['username']));
         $encryptedPassword = purpleTools::sanitizeString($_GET['encryptedPassword']);
 
-        $userEntity = $this->getUser($username);
-        
-        $privateKey = $this->securityDao->getPrivateKeyIfCoherent($username, $encryptedPassword, $userEntity);
-        if ($privateKey != false)
+        $userEntity = $this->userDao->getUser($username);
+        if ($this->userDao->securityDao->checkCredentials($username, $encryptedPassword, $userEntity))
         {
-            $obj = new stdClass();
-            $obj->PrivateKey = $privateKey;
-            return $obj;
+            return (object)['PrivateKey' => $userEntity->privateKey];
         }
         return "IncorrectAuthParameters";
     }
@@ -107,16 +90,14 @@ class jsonApi extends abstractJsonApi
     **/
     public function addfruitAction() 
     {
-        $userName = purpleTools::sanitizeString($_POST['username']);
-        $clientHash = purpleTools::sanitizeString($_POST['hash']);
-        $entity = purpleTools::sanitizeArray($_POST['data']);
+        $secEntityData = new securedPackageEntity($_POST);
+        $userEntity = $this->userDao->getUser($secEntityData->username);
 
-        if ($this->securityDao->isauthorized($userName, $clientHash, $entity, $this->getUser($userName)))
+        if ($this->userDao->securityDao->isauthorized($secEntityData, $userEntity))
         {
-            $fruitName = $entity['Name'];    
-            $fruitQuantity = $entity['Quantity'];
-            $fruitTypeId = $entity['TypeId'];
-            $this->dao()->addFruitEntity(new FruitEntity($fruitName, $fruitQuantity, $fruitTypeId));
+            $entity = new FruitEntity();
+            $entity->setFromArray($secEntityData->data);
+            $this->dao()->addFruitEntity($entity);
             return "Ok";
         }
         return "Error";
@@ -127,9 +108,15 @@ class jsonApi extends abstractJsonApi
     **/
     public function removefruitAction() 
     {
-        $fruitId = purpleTools::sanitizeString($_POST['FruitId']);
-        $this->dao()->removeFruitEntity($fruitId);
-        return "Ok";
+        $secEntityData = new securedPackageEntity($_POST);
+        $userEntity = $this->userDao->getUser($secEntityData->username);
+
+        if ($this->userDao->securityDao->isauthorized($secEntityData, $userEntity))
+        {
+            $this->dao()->removeFruitEntity($secEntityData->data['FruitId']);
+            return "Ok";
+        }
+        return "Error";
     }
     
     /**
@@ -139,9 +126,12 @@ class jsonApi extends abstractJsonApi
     {
         $search = strtolower(purpleTools::sanitizeString($_GET['search']));
 
-        $fruitTypeList[] = (object)['Id' => '1', 'label' => 'Acidulated'];
-        $fruitTypeList[] = (object)['Id' => '2', 'label' => 'Sweet'];
-        $fruitTypeList[] = (object)['Id' => '3', 'label' => 'Disgusting'];
+        $fruitTypeList[] = 
+            [
+                (object)['Id' => '1', 'label' => 'Acidulated']
+                ,(object)['Id' => '2', 'label' => 'Sweet']
+                ,(object)['Id' => '3', 'label' => 'Disgusting']
+            ];
 
         // Scan the array for getting results array
         $searchResults = Array();
