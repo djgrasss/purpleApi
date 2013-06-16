@@ -11,6 +11,8 @@ function myViewModel() {
     var useRealTime = false;
     var privateKey = ko.observable(null);
 
+    self.Notification = ko.observableArray(['wOOt']);
+
     //
     // Public properties
     //
@@ -21,7 +23,9 @@ function myViewModel() {
         Name : ko.observable('AlloLeMonde'), 
         Quantity : ko.observable('12'), 
         TypeId : ko.observable('1') 
-    };    
+    };
+    FruitEntityListTimer = null;
+
     //// !Fruits
     //// User
     self.User = { username:ko.observable('eka808'), password:ko.observable('foobar') };
@@ -43,7 +47,7 @@ function myViewModel() {
         // In case of refresh, do that to be sure that needed data is loaded
         loadPageSpecificStuff(self.CurrentPageKey());
 
-        self.UserLogin(); console.log('===USERLOGINMOCKED===');
+        //self.UserLogin(); console.log('===USERLOGINMOCKED===');
     };
 
     // 
@@ -79,7 +83,7 @@ function myViewModel() {
     /** Method to add a fruit by calling the json service **/
     self.submitAddLine = function()
     {
-        var data = ko.toJS(self.FruitEntity);
+        var data = self.FruitEntity;
         var params = getEncryptedParamsForData(data);
 
         ko.Purple.jsonCall(
@@ -103,6 +107,13 @@ function myViewModel() {
             'POST'
         );
     };
+
+    /** Remove a local notification from the array **/
+    self.submitRemoveNotification = function(obj)
+    {
+        self.Notification.remove(obj);
+    }
+    
 
     /** Callback function of the autocomplete **/
     self.FruitTypeAutocompleteSelect = function(data) { /*console.log(data);*/ };
@@ -128,19 +139,24 @@ function myViewModel() {
     /** Long time pooling ajax call for fetching table **/
     var fetchFruitsTableRealtime = function()
     {
+        //If there is a current loog time polling, kill it
+        if (FruitEntityListTimer != null)
+            FruitEntityListTimer.abort();
+
         var params = { action:'FRUITLISTPERSISTENT', generationTime:self.FruitEntityListGenerationTime() };
-        ko.Purple.jsonCall(
-            baseServiceUrl, 
-            ko.toJS(params), 
-            function(data) { 
-                feedTableFromData(data); 
-                setTimeout(fetchFruitsTableRealtime, 1000);
-            },
-            'GET',
-            function() {
-                setTimeout(fetchFruitsTableRealtime, 1500);  
-            }
-        );
+        FruitEntityListTimer = 
+            ko.Purple.jsonCall(
+                baseServiceUrl, 
+                ko.toJS(params), 
+                function(data) { 
+                    feedTableFromData(data);
+                    setTimeout(fetchFruitsTableRealtime, 1000);
+                },
+                'GET',
+                function() {
+                    setTimeout(fetchFruitsTableRealtime, 1500);
+                }
+            );
     };
     
     /** Utility method to get feed the view with the data got from ajax call **/
@@ -158,7 +174,9 @@ function myViewModel() {
             case 'Fruits':
                 // Launch the long time polling (realtime update of the fruits grid)
                 if (useRealTime)
+                {
                     fetchFruitsTableRealtime();    
+                }
                 else
                     self.fetchFruitsTable();
             break;
@@ -181,6 +199,7 @@ function myViewModel() {
 
     var getEncryptedParamsForData = function(data)
     {
+        data = ko.toJS(data);
         var params =
             {
                 username : self.User.username(),

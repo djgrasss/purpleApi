@@ -32,7 +32,7 @@ ko.Purple = new function()
         httpMethod = typeof httpMethod !== 'undefined' ? httpMethod : 'GET';
         errorCallbackFunction = typeof httpMethod !== 'undefined' ? errorCallbackFunction : null;
 
-        $.ajax({
+        var poll_xhr = $.ajax({
             type:httpMethod
             ,dataType: "json"
             ,url:serviceUrl
@@ -52,6 +52,8 @@ ko.Purple = new function()
                         errorCallbackFunction();
                 }
         });
+        
+        return poll_xhr;
     };
 
     /**

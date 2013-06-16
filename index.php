@@ -49,6 +49,14 @@
         </div>
     </div>
 
+    <script type="text/html" id="alertTemplate">
+    <div class="alert">
+        <button type="button" class="close" data-bind="click:$root.submitRemoveNotification">&times;</button>
+        <span data-bind="text:note"></span>
+    </div>    
+    </script>
+    <div data-bind="template:{ name:'alertTemplate', foreach:Notification, as:'note' }"></div>
+
     <!-- Home page -->
     <div class='container' data-bind="visible:CurrentPageKey() == 'Home'">
         <input class="span2" placeholder="username" data-bind="value:User.username" type="text"><br />
@@ -71,7 +79,7 @@
                 <tr>
                     <td><a href="#" data-bind="text:Name"></a></td>
                     <td><a href="#" data-bind="text:Quantity"></a></td>
-                    <td><button class='btn removeLineBtn' data-bind="click:$root.submitRemoveLive"><i class='icon-remove'></i></button></td>
+                    <td><button class='btn removeLineBtn' data-bind="click:$root.submitRemoveLive, visible:$root.IsLogged()"><i class='icon-remove'></i></button></td>
                 </tr>
             </tbody>
         </table>
