@@ -12,31 +12,11 @@
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <script src="client/js/jquery-1.9.1.min.js"></script>
-    <script src="client/js/jquery-ui-1.10.2.custom.min.js"></script>
-    <script src="client/js/knockout-2.2.1.js"></script>
-    <script src="client/js/sammy-0.7.4.min.js"></script>
-    <script src="client/js/bootstrap.min.js"></script>
-    <script src="client/js/purpleFunctions.js"></script>
-    <script src="client/js/knockoutExtensions.js"></script>
-    <script src="client/js/cryptojs/sha1.js"></script>
-    <script src="client/js/cryptojs/sha256.js"></script>
-    <script src="client/js/cryptojs/hmac-sha256.js"></script>
-    
-    <script src="client/js/behavior.js"></script>
-    <script type="text/javascript">
-        /**
-         * ViewModel instanciation
-        **/
-        $(function () 
-        {
-            document.viewModel = new myViewModel();
-            ko.applyBindings(document.viewModel);
-            
-            var currentServerIpPort = "<?php echo $jsonServerIpAndPort; ?>";
-            document.viewModel.init(currentServerIpPort);
-        });
+    <script type='text/javascript'>
+        document.jsonServerIpAndPort = "<?php echo $jsonServerIpAndPort; ?>";
     </script>
+    <script type="text/javascript" data-main="client/js/init.js" src="client/js/require.js"></script>
+
 
 
     <!-- Top NavBar -->
