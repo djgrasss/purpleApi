@@ -2,6 +2,9 @@
 include_once('classes/purpleSecure.class.php');
 class userDao 
 {
+	//
+	// Private
+	//
 
 	private $usersArray;
 	public $securityDao;
@@ -18,6 +21,10 @@ class userDao
 	        ];
         $this->usersArray = $this->securityDao->setPrivateKeysForUsers($this->usersArray);
 	}
+
+	//
+	// Public
+	//
 
 	public function ListUsers()
 	{

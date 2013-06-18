@@ -1,4 +1,4 @@
-define(['tools/knockout','tools/jquery'], function (ko, jQuery) {
+define(['tools/knockout','jquery'], function (ko, jQuery) {
 /** 
  * Autcomplete binding Handler 
  * JSON api should implement array of objects like {id:1,label:'foo'}

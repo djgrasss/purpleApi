@@ -52,13 +52,6 @@ class purpleSecure
         return $serverHash == $securedPackageEntity->hash;
     }
 
-
-
-
-
-
-
-
     private function getHashForQueryString($securedPackageEntity, $userEntity)
     {
         return hash_hmac('sha256', $securedPackageEntity->getDataQueryString(), $userEntity->privateKey);

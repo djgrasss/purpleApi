@@ -1,4 +1,4 @@
-define(['tools/knockout','tools/jquery'], function (ko, jQuery) {
+define(['tools/knockout','jquery'], function (ko, jQuery) {
     /** 
      *
      * JS client methods used by purple framework 

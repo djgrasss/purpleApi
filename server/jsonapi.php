@@ -19,11 +19,12 @@ include_once('classes/abstractJsonApi.class.php');
 **/
 class jsonApi extends abstractJsonApi
 {
-    /* DAO getter */
-    private function dao() {
-        //return new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
-        return new realtimeDao('/purpleApi/server/cache/');
-    }
+    //
+    // Private
+    //
+
+    private static $fruitEntityDao;
+    private static $userDao;
 
     /* The files to include to play with */
     protected $dependencies =
@@ -41,15 +42,26 @@ class jsonApi extends abstractJsonApi
             ,'models/securedPackageEntity.class.php'
         ];
 
-    private $usersArray;
-    
     /**
      * Default constructor 
     **/
-    function __construct()
+    function __construct($autoRoute = true)
     {
         parent::__construct();
+
+        // IOC
+        // self::$fruitEntityDao = new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
+        self::$fruitEntityDao = new realtimeDao('/purpleApi/server/cache/');
+        self::$userDao = new userDao();
+        
+        //Routing
+        if ($autoRoute)
+            $this->route();
     }
+
+    //
+    // Public
+    //
 
     /** 
      * AUTH : get private key
@@ -59,8 +71,8 @@ class jsonApi extends abstractJsonApi
         $username = strtolower(purpleTools::sanitizeString($_GET['username']));
         $encryptedPassword = purpleTools::sanitizeString($_GET['encryptedPassword']);
 
-        $userEntity = $this->userDao->getUser($username);
-        if ($this->userDao->securityDao->checkCredentials($username, $encryptedPassword, $userEntity))
+        $userEntity = self::$userDao->getUser($username);
+        if (self::$userDao->securityDao->checkCredentials($username, $encryptedPassword, $userEntity))
         {
             return (object)['PrivateKey' => $userEntity->privateKey];
         }
@@ -73,7 +85,7 @@ class jsonApi extends abstractJsonApi
     **/
     public function fruitlistAction() 
     {
-        return $this->dao()->listFruitEntities();
+        return self::$fruitEntityDao->listFruitEntities();
     }
 
     /**
@@ -82,7 +94,7 @@ class jsonApi extends abstractJsonApi
     public function fruitlistpersistentAction() 
     {
         $clientListTime = purpleTools::sanitizeString(isset($_GET['generationTime']) ? $_GET['generationTime'] : '');
-        return $this->dao()->listFruitEntitiesLongTimePooling($clientListTime);
+        return self::$fruitEntityDao->listFruitEntitiesLongTimePooling($clientListTime);
     }
     
     /**
@@ -91,13 +103,13 @@ class jsonApi extends abstractJsonApi
     public function addfruitAction() 
     {
         $secEntityData = new securedPackageEntity($_POST);
-        $userEntity = $this->userDao->getUser($secEntityData->username);
+        $userEntity = self::$userDao->getUser($secEntityData->username);
 
-        if ($this->userDao->securityDao->isauthorized($secEntityData, $userEntity))
+        if (self::$userDao->securityDao->isauthorized($secEntityData, $userEntity))
         {
             $entity = new FruitEntity();
             $entity->setFromArray($secEntityData->data);
-            $this->dao()->addFruitEntity($entity);
+            self::$fruitEntityDao->addFruitEntity($entity);
             return "Ok";
         }
         return "Error";
@@ -109,11 +121,11 @@ class jsonApi extends abstractJsonApi
     public function removefruitAction() 
     {
         $secEntityData = new securedPackageEntity($_POST);
-        $userEntity = $this->userDao->getUser($secEntityData->username);
+        $userEntity = self::$userDao->getUser($secEntityData->username);
 
-        if ($this->userDao->securityDao->isauthorized($secEntityData, $userEntity))
+        if (self::$userDao->securityDao->isauthorized($secEntityData, $userEntity))
         {
-            $this->dao()->removeFruitEntity($secEntityData->data['FruitId']);
+            self::$fruitEntityDao->removeFruitEntity($secEntityData->data['FruitId']);
             return "Ok";
         }
         return "Error";
@@ -126,7 +138,7 @@ class jsonApi extends abstractJsonApi
     {
         $search = strtolower(purpleTools::sanitizeString($_GET['search']));
 
-        $fruitTypeList[] = 
+        $fruitTypeList = 
             [
                 (object)['Id' => '1', 'label' => 'Acidulated']
                 ,(object)['Id' => '2', 'label' => 'Sweet']
@@ -142,5 +154,6 @@ class jsonApi extends abstractJsonApi
         return $searchResults;
     }
 }
-$app = new jsonApi();
+//$app = new jsonApi();
+echo 'disabled autoload';
 ?>

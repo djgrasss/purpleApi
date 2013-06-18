@@ -1,0 +1,43 @@
+<snippet>
+	<content><![CDATA[
+/**
+ * Namespace of notifications management 
+**/
+var $1Namespace = function(ko)
+{
+	var self = this;
+
+	//
+	// Public
+	// 
+	
+	self.$1List = ko.observableArray([]);
+
+    /** Add a notification **/
+    self.Add$1 = function(data)
+    {
+        self.$1List.push(data);
+    };
+
+    /** Remove a notification **/
+    self.submitRemove$1 = function(obj)
+    {
+        self.Notification$1.remove(obj);
+    }
+
+    //
+    // Private
+    //
+};
+
+//Require Js stuff
+var dependencies = ['tools/knockout'];
+define(dependencies, function (ko) {
+	return new $1Namespace(ko);
+});
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>purpleNamespace</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.js</scope> 
+</snippet>

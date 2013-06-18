@@ -5,8 +5,6 @@
 **/
 abstract class abstractJsonApi
 {
-    protected $securityDao;
-    protected $userDao;
     
 	/**
 	 * Default constructor
@@ -21,17 +19,12 @@ abstract class abstractJsonApi
 
         // Render type
         header('Content-type: application/json');
-
-        $this->userDao = new userDao();
-
-        //Routing
-        $this->route();
     }
 
     /**
      * Main routing function
      */
-    function route()
+    protected function route()
     {
         $action = strtoupper(purpleTools::sanitizeString($_GET['action']));
         //$actionMethod = $this->routing[$action]; //for strong routing
@@ -52,7 +45,7 @@ abstract class abstractJsonApi
 	/**
 	 * Resolve dependencies of the api
 	**/
-    function ResolveDependencies()
+    private function ResolveDependencies()
     {
         foreach ($this->dependencies as $value)
             include_once($value);
