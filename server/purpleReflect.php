@@ -75,13 +75,19 @@ class purpleReflect
 
 
 
+/*
 $reflect = new purpleReflect();
-
 purpleDebug::print_r($reflect->getClassInfos('jsonApi'));
-
-
-
-
-
-
+*/
 ?>
+
+<html>
+<div>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="800" height="800"> 
+  	<rect x="1" y="1" width="500" height="40" fill="white" stroke="black" stroke-width="2" />
+	<text x="0" y="15" fill="red">I love SVG</text>
+</svg>
+</div>
+
+</body>
+</html> 

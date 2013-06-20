@@ -1,16 +1,18 @@
 <?php 
 include_once('classes/purpleSecure.class.php');
-class userDao 
+class userDao extends abstractDao
 {
 	//
 	// Private
 	//
 
 	private $usersArray;
-	public $securityDao;
+	private $securityDao;
 
 	function __construct()
 	{
+		parent::__construct();
+
 		// Security layer
         $this->securityDao = new purpleSecure();
 
@@ -36,6 +38,20 @@ class userDao
         foreach ($this->usersArray as $key => $value)
         if ($value->username == $userName)
             return $value;
+    }
+
+    public function checkCredentials($username, $encryptedPassword)
+    {
+    	$userEntity = $this->getUser($username);
+    	if ($this->securityDao->checkCredentials($username, $encryptedPassword, $userEntity))
+    		return $userEntity->privateKey;
+    	return false;
+    }
+
+    public function isauthorized($secEntityData)
+    {
+    	$userEntity = $this->getUser($secEntityData->username);
+    	return $this->securityDao->isauthorized($secEntityData, $userEntity);
     }
 }
 ?>

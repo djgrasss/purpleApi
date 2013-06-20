@@ -4,7 +4,7 @@
 * @author eka808
 * @version 0.2
 */
-abstract class persistenceLayer
+class persistenceLayer
 {
     /* Base path of where the class can store data */
     private $basePath;

@@ -11,9 +11,9 @@ abstract class abstractJsonApi
 	**/
     function __construct()
     {
+
         // Dependencies
         $this->ResolveDependencies();
-
         // Debug init
         purpleTools::initDebug();
 
@@ -26,17 +26,17 @@ abstract class abstractJsonApi
      */
     protected function route()
     {
-        $action = strtoupper(purpleTools::sanitizeString($_GET['action']));
-        //$actionMethod = $this->routing[$action]; //for strong routing
+
+        $action = purpleTools::sanitizeArrayElement($_GET, 'action');        
         $actionMethod = strtolower($action).'Action';
 
-        try
+        if ($action != '')
         {
             $objectToReturn = purpleTools::functionCaller($this,$actionMethod);
         }
-        catch (PurpleUnknownRouteException $e)
+        else
         {
-            $objectToReturn = purpleTools::functionCaller($this,$routing['FRUITLIST']);
+            $objectToReturn = "UNKNOWNACTION";
         }
 
         echo json_encode($objectToReturn);

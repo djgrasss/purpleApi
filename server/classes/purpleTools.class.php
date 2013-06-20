@@ -44,6 +44,15 @@ class purpleTools
         return $theArray;
     }
 
+    public static function sanitizeArrayElement($array, $elementName, $defaultValue = '')
+    {
+        $action = 
+            array_key_exists('action', $array) 
+                ? purpleTools::sanitizeString($array[$elementName])
+                : $defaultValue;
+        return $action;
+    }
+
 
     /**
      * Standard debug configuration init

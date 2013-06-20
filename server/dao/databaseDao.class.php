@@ -5,10 +5,8 @@ include_once('classes/idiorm.php');
  * DAO implementation for using database storing via Idiorm (https://github.com/j4mie/idiorm)
  * @author eka808
 **/
-class databaseDao implements IDao
+class databaseDao
 {
-	/* Name of the table used */
-	private $TableName = 'fruits';
 
 	/**
 	 * Default constructor
@@ -22,7 +20,7 @@ class databaseDao implements IDao
     	$db = ORM::get_db();
 
     	// Create the table if this one not exists in the db
-    	$db->exec("
+    	/*$db->exec("
     		--DROP TABLE " . $this->TableName . ";
 	    	CREATE TABLE IF NOT EXISTS " . $this->TableName . " ( 
 	    		Id INTEGER PRIMARY KEY, 
@@ -30,56 +28,27 @@ class databaseDao implements IDao
 	    		Quantity INTEGER,
 	    		TypeId INTEGER
 	    	);
-    	");
+    	");*/
 	}
 
 	/**
 	 * Return the entities
 	**/
-	public function listFruitEntities()
+	public function listEntities($tableName)
 	{
-		$fruitList = ORM::for_table($this->TableName)->find_many();
-		
-		// Projection
-		$returnObj = new stdClass();
-		$returnObj->FruitList = Array();
-		foreach ($fruitList as $key => $value) {
-			$returnObj->FruitList[] = 
-				new FruitEntity(
-					$value->Name, 
-					$value->Quantity, 
-					$value->TypeId,
-					$value->Id
-				);
-		}
-
-    	return new PersistenceEntity($returnObj, time());
+		return ORM::for_table($tableName)->find_many();
 	}	
 
-	/**
-	 * Return the entities using a long time pooling time limit
-	**/
-	public function listFruitEntitiesLongTimePooling($clientListTime) 
-	{
-	    //Long time polling stuff : user wait if his version is up to date
-	    do {
-	        $localTime = $this->getCreationTime();
-	        clearstatcache();
-	        usleep(10000);
-	    } while ($clientListTime == $localTime);
-	    
-	    return $this->listFruitEntities();
-	}
 
 	/**
 	 * Add an entity and save to db
 	**/	
-	public function addFruitEntity($FruitEntity) 
+	public function addEntity($tableName, $entity) 
 	{
-		$fruit = ORM::for_table($this->TableName)->create();
+		$fruit = ORM::for_table($tableName)->create();
 
 		// Fetch properties of source object into the one to store in db
-		foreach ($FruitEntity as $key => $value)
+		foreach ($entity as $key => $value)
 		if ($key != 'Id')
 			$fruit->$key = $value;	
 
@@ -89,9 +58,9 @@ class databaseDao implements IDao
 	/**
 	 * Remove entity from db
 	**/	
-	public function removeFruitEntity($fruitId) 
+	public function removeEntity($tableName, $Id) 
 	{
-		$fruit = ORM::for_table($this->TableName)->where_equal('Id', $fruitId)->delete_many();
+		$fruit = ORM::for_table($tableName)->where_equal('Id', $Id)->delete_many();
 	}
 }
 ?>

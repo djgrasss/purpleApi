@@ -10,7 +10,7 @@ include_once('classes/abstractJsonApi.class.php');
 
  * 
  * API provider of purple framework
- * @version : 0.3
+ * @version : 0.4
  * @author : eka808 - http://www.yoannmagli.ch
  * 
  * @todo : long time pooling for database store
@@ -23,40 +23,47 @@ class jsonApi extends abstractJsonApi
     // Private
     //
 
-    private static $fruitEntityDao;
-    private static $userDao;
-
-    /* The files to include to play with */
+    /* Riles to include to play with */
     protected $dependencies =
         [
             'classes/purpleDebug.class.php'
             ,'classes/purpleTools.class.php'
+            ,'classes/purpleIoc.class.php'
+            ,'classes/persistenceLayer.class.php'
             ,'interfaces/IDao.interface.php'
             ,'models/FruitEntity.class.php'
             ,'models/PersistenceEntity.class.php'
             //,'classes/purpleUi.class.php'
             //,'classes/purpleMath.class.php'
-            ,'dao/realtimeDao.class.php'
             ,'dao/databaseDao.class.php'
+            ,'classes/abstractDao.class.php'
             ,'dao/userDao.class.php'
+            ,'dao/fruitDao.class.php'
             ,'models/securedPackageEntity.class.php'
         ];
 
     /**
+     * Ioc container used for classes persistence 
+     * Kept public for being unsed application scope
+     */
+    public static $container;
+
+    /**
      * Default constructor 
     **/
-    function __construct($autoRoute = true)
+    function __construct()
     {
         parent::__construct();
 
         // IOC
-        // self::$fruitEntityDao = new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
-        self::$fruitEntityDao = new realtimeDao('/purpleApi/server/cache/');
-        self::$userDao = new userDao();
+        self::$container = new purpleIoc();
+        self::$container->context = new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
+        self::$container->fruitEntityDao = new fruitDao();
+        self::$container->userDao = new userDao();
+        // $this->context = new persistenceLayer('/purpleApi/server/cache/');
         
         //Routing
-        if ($autoRoute)
-            $this->route();
+        $this->route();
     }
 
     //
@@ -68,24 +75,23 @@ class jsonApi extends abstractJsonApi
     **/
     public function getprivatekeyAction()
     {        
-        $username = strtolower(purpleTools::sanitizeString($_GET['username']));
-        $encryptedPassword = purpleTools::sanitizeString($_GET['encryptedPassword']);
+        $privateKeyIfCorrect = 
+            self::$container->userDao->checkCredentials(
+                strtolower(purpleTools::sanitizeString($_GET['username'])),
+                purpleTools::sanitizeString($_GET['encryptedPassword'])
+            );
 
-        $userEntity = self::$userDao->getUser($username);
-        if (self::$userDao->securityDao->checkCredentials($username, $encryptedPassword, $userEntity))
-        {
-            return (object)['PrivateKey' => $userEntity->privateKey];
-        }
-        return "IncorrectAuthParameters";
+        return $privateKeyIfCorrect
+            ? (object)['PrivateKey' => $privateKeyIfCorrect]
+            : "IncorrectAuthParameters";
     }
-
 
     /**
      * List fruits action
     **/
     public function fruitlistAction() 
     {
-        return self::$fruitEntityDao->listFruitEntities();
+        return self::$container->fruitEntityDao->listFruitEntities();
     }
 
     /**
@@ -93,8 +99,10 @@ class jsonApi extends abstractJsonApi
     **/
     public function fruitlistpersistentAction() 
     {
-        $clientListTime = purpleTools::sanitizeString(isset($_GET['generationTime']) ? $_GET['generationTime'] : '');
-        return self::$fruitEntityDao->listFruitEntitiesLongTimePooling($clientListTime);
+        $clientListTime = purpleTools::sanitizeString(
+            isset($_GET['generationTime']) ? $_GET['generationTime'] : ''
+        );
+        return self::$container->fruitEntityDao->listFruitEntitiesLongTimePooling($clientListTime);
     }
     
     /**
@@ -103,13 +111,11 @@ class jsonApi extends abstractJsonApi
     public function addfruitAction() 
     {
         $secEntityData = new securedPackageEntity($_POST);
-        $userEntity = self::$userDao->getUser($secEntityData->username);
-
-        if (self::$userDao->securityDao->isauthorized($secEntityData, $userEntity))
+        if (self::$container->userDao->isauthorized($secEntityData))
         {
             $entity = new FruitEntity();
             $entity->setFromArray($secEntityData->data);
-            self::$fruitEntityDao->addFruitEntity($entity);
+            self::$container->fruitEntityDao->addFruitEntity($entity);
             return "Ok";
         }
         return "Error";
@@ -121,11 +127,10 @@ class jsonApi extends abstractJsonApi
     public function removefruitAction() 
     {
         $secEntityData = new securedPackageEntity($_POST);
-        $userEntity = self::$userDao->getUser($secEntityData->username);
 
-        if (self::$userDao->securityDao->isauthorized($secEntityData, $userEntity))
+        if (self::$container->userDao->isauthorized($secEntityData))
         {
-            self::$fruitEntityDao->removeFruitEntity($secEntityData->data['FruitId']);
+            self::$container->fruitEntityDao->removeFruitEntity($secEntityData->data['FruitId']);
             return "Ok";
         }
         return "Error";
@@ -154,6 +159,6 @@ class jsonApi extends abstractJsonApi
         return $searchResults;
     }
 }
-//$app = new jsonApi();
-echo 'disabled autoload';
+$app = new jsonApi();
+//echo 'disabled autoload';
 ?>
