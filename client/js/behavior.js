@@ -9,8 +9,9 @@ var dependencies =
         ,'models/SpaNamespace'
         ,'models/SecurityNamespace'
         ,'models/FruitEntityNamespace'
+        ,'models/UserEntityNamespace'
     ];
-define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityObj, fruitEntityObj) {
+define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityObj, fruitEntityObj, userEntityObj) {
     var myViewModel = function() {
         var self = this; 
 
@@ -23,6 +24,8 @@ define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityO
         self.spaObj = spaObj;
         self.securityObj = securityObj;
         self.fruitEntityObj = fruitEntityObj;
+        self.userEntityObj = userEntityObj;
+
 
         // 
         // Private properties
@@ -58,6 +61,9 @@ define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityO
                     else
                         self.fruitEntityObj.fetchFruitsTable();
                 break;
+                case 'Users':
+                    self.userEntityObj.fetchFruitsTable();
+                break;
             }
         }
 
@@ -66,17 +72,21 @@ define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityO
         //
 
         /** Default constructor **/
-        self.init = function(currentServerIpPort) {        
+        self.init = function(currentServerIpPort) {    
+
             // Propagate the base service Url
             baseServiceUrl = "http://" + currentServerIpPort + "/purpleApi/server/jsonapi.php";        
 
             // Inits
             securityObj.init(baseServiceUrl, authenticationCallbackFunction);
             fruitEntityObj.init(baseServiceUrl);
+            userEntityObj.init(baseServiceUrl);
 
             // In case of refresh, to be sure that needed data is loaded
             loadPageSpecificStuff(spaObj.CurrentPageKey());
-            //self.UserLogin(); console.log('===USERLOGINMOCKED===');
+            
+
+            self.securityObj.UserLogin(); console.log('===USERLOGINMOCKED===');
         };
 
         /** Callback function of the autocomplete **/

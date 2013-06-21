@@ -1,4 +1,4 @@
-define(['tools/knockout','jquery'], function (ko, jQuery) {
+define(['tools/knockout','jquery' ,'purple/purpleUiTable.jquery'], function (ko, jQuery) {
 /** 
  * Autcomplete binding Handler 
  * JSON api should implement array of objects like {id:1,label:'foo'}
@@ -29,6 +29,18 @@ ko.bindingHandlers.autoComplete = {
     update: function (element, params) {
     	var paramsLocal = ko.toJS(params());
         //$(element).autocomplete(params());
+    }
+};
+
+/**
+ * generate table
+ */
+ko.bindingHandlers.purpleTable = {
+    // init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    // },
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        var columns = valueAccessor().columns;
+        $(element).purpleUiTable(allBindingsAccessor().data(), columns);
     }
 };
 

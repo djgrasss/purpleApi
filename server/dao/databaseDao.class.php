@@ -8,6 +8,8 @@ include_once('classes/idiorm.php');
 class databaseDao
 {
 
+	private $db;
+
 	/**
 	 * Default constructor
 	 * Configure the idiorm db connection
@@ -17,18 +19,7 @@ class databaseDao
 	{
 		// Connect to the demo database file
     	ORM::configure($pdoConnectionString);
-    	$db = ORM::get_db();
-
-    	// Create the table if this one not exists in the db
-    	/*$db->exec("
-    		--DROP TABLE " . $this->TableName . ";
-	    	CREATE TABLE IF NOT EXISTS " . $this->TableName . " ( 
-	    		Id INTEGER PRIMARY KEY, 
-	    		Name TEXT,
-	    		Quantity INTEGER,
-	    		TypeId INTEGER
-	    	);
-    	");*/
+    	$this->db = ORM::get_db();
 	}
 
 	/**
@@ -61,6 +52,11 @@ class databaseDao
 	public function removeEntity($tableName, $Id) 
 	{
 		$fruit = ORM::for_table($tableName)->where_equal('Id', $Id)->delete_many();
+	}
+
+	public function executeSqlQuery($sqlQuery)
+	{
+    	$this->db->exec($sqlQuery);
 	}
 }
 ?>

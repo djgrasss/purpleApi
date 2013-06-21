@@ -17,8 +17,6 @@
     </script>
     <script type="text/javascript" data-main="client/js/init.js" src="client/js/tools/require.js"></script>
 
-
-
     <!-- Top NavBar -->
     <div class="navbar">
         <div class="navbar-inner">
@@ -74,6 +72,11 @@
             <br />
             <button class='btn btn-primary' data-bind="click:fruitEntityObj.submitAddLine">Add</button>    
         </div>
+    </div>
+
+    <!-- Users page -->
+    <div class='container' data-bind="visible:spaObj.CurrentPageKey() == 'Users'">
+        <div data-bind="data:userEntityObj.UserList, purpleTable:{columns:['username']}">AAA</div>
     </div>
 </body>
 </html>

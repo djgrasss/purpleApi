@@ -12,6 +12,21 @@ class userDao extends abstractDao
 	function __construct()
 	{
 		parent::__construct();
+		/*$tableName = 'users';
+		$sql = "
+    		--DROP TABLE " . $tableName . ";
+	    	CREATE TABLE IF NOT EXISTS " . $tableName . " ( 
+	    		Id INTEGER PRIMARY KEY, 
+	    		username VARCHAR(50),
+	    		encryptedPassword TEXT
+	    	);";
+		$this->context->executeSqlQuery($sql);*/
+
+		/*purpleDebug::print_r(
+			$this->context->listEntities('users')
+		);*/
+
+		parent::__construct();
 
 		// Security layer
         $this->securityDao = new purpleSecure();
@@ -31,6 +46,17 @@ class userDao extends abstractDao
 	public function ListUsers()
 	{
 		return $this->usersArray;
+	}
+
+	public function ListUsersPublic()
+	{
+		$projection = [];
+		foreach ($this->ListUsers() as $value) {
+			$cur = new stdClass();
+			$cur->username = $value->username;
+			$projection[] = $cur;
+		}
+		return $projection;
 	}
 
     public function getUser($userName)

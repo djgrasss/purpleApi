@@ -12,7 +12,7 @@ var SpaNamespace = function(ko, Sammy)
 
     // List of the application pages and current page id
     self.CurrentPageKey = ko.observable();
-    self.Pages = ['Home','Fruits'];	
+    self.Pages = ['Home','Fruits','Users'];	
 
     /** Change page event from the menu, Tell sammy that the current page selected is curPage **/
     self.changePage = function(curPage) { 

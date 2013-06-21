@@ -42,6 +42,10 @@ class jsonApi extends abstractJsonApi
             ,'models/securedPackageEntity.class.php'
         ];
 
+    //
+    // Public
+    //
+
     /**
      * Ioc container used for classes persistence 
      * Kept public for being unsed application scope
@@ -58,16 +62,16 @@ class jsonApi extends abstractJsonApi
         // IOC
         self::$container = new purpleIoc();
         self::$container->context = new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
+        // self::$container->context = new persistenceLayer('/purpleApi/server/cache/');
         self::$container->fruitEntityDao = new fruitDao();
         self::$container->userDao = new userDao();
-        // $this->context = new persistenceLayer('/purpleApi/server/cache/');
         
         //Routing
         $this->route();
     }
 
     //
-    // Public
+    // FRUITS
     //
 
     /** 
@@ -157,6 +161,16 @@ class jsonApi extends abstractJsonApi
             $searchResults[] = $value;
 
         return $searchResults;
+    }
+
+
+    //
+    // USER
+    //
+    
+    public function userlistAction()
+    {
+        return self::$container->userDao->ListUsersPublic();
     }
 }
 $app = new jsonApi();

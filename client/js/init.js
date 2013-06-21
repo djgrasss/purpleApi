@@ -28,9 +28,7 @@ require(
         cryptojshmacsha256, 
         jqeryUi, 
         bootstrapUi, 
-        myViewModel,
-        koExt,
-        test
+        myViewModel
     ) {
             //
             // Application init
