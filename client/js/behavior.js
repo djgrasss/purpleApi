@@ -32,8 +32,7 @@ define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityO
         //
         
         var baseServiceUrl;
-        var useRealTime = false;
-
+        var useRealTime = true;
         var authenticationCallbackFunction = function(data)
         {
             notificationsObj.AddNotification(data);
@@ -86,7 +85,7 @@ define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityO
             loadPageSpecificStuff(spaObj.CurrentPageKey());
             
 
-            self.securityObj.UserLogin(); console.log('===USERLOGINMOCKED===');
+            //self.securityObj.UserLogin(); console.log('===USERLOGINMOCKED===');
         };
 
         /** Callback function of the autocomplete **/

@@ -1,12 +1,13 @@
 (function($) {
-	
-	//Props
 
-	//Functions
-
-	var generateTable = function(list, columns) 
+	var generateTable = function(params) 
 	{
-		var returnCode = '<table border>';
+		var 
+			list = params.data,
+		 	columns = params.columns,
+		 	tableCssClass = params.tableCssClass;
+			
+		var returnCode = "<table class='" + tableCssClass + "'>";
 
 		// Columns header
 		if ((typeof list[0]) == 'object')
@@ -20,42 +21,36 @@
 			returnCode += "</thead>";
 		}
 
+		//Table content
 		returnCode += '<tbody>';
 		for (var key in list) {
 			var value = list[key];
-			var dataType = typeof value;
 			var keyType = isNaN(parseInt(key)) ? typeof key : null;
 
-			// Show value
-			if (['string','number'].indexOf(dataType) != -1)
+			returnCode += '<tr>';
+
+			switch(typeof value)
 			{
-				returnCode += '<tr>';
-				// Show key
-				if (keyType != null)
-					returnCode += '<td>' + key + '</td>';
-				returnCode += '<td>' + value + '</td>';
-				returnCode += '</tr>';
-			}
-			else if (dataType == 'object')
-			{	
-				if (columns == null)
-				{
-					returnCode += '<tr>';
-					returnCode += '<td>' + generateTable(value) + '</td>';
-					returnCode += '</tr>';
-				}
-				else
-				{
-					returnCode += '<tr>';
+				case 'string':
+				case 'number':
+					// Show key
+					if (keyType != null)
+						returnCode += '<td>' + key + '</td>';
+					returnCode += '<td>' + value + '</td>';
+				break;
+				case 'object':
+					if (columns == null)
+						returnCode += '<td>' + generateTable(value) + '</td>';
+					else
 					for (var i = 0; i < columns.length; i++)
 						returnCode += '<td>' + value[columns[i]] + '</td>';
-					returnCode += '</tr>';
-				}
+				break;
+				default:
+					returnCode += 'UNTREATABLE TYPE : ' + (typeof value).toString();
+				break;
 			}
-			else
-			{
-				returnCode += 'UNTREATABLE TYPE : ' + (typeof value).toString();
-			}
+
+			returnCode += '</tr>';
 		};
 		returnCode += '</tbody>';
 		returnCode += '</table>';
@@ -65,11 +60,11 @@
 
 
 	//Plugin
-	$.fn.purpleUiTable = function(list, columns) {
+	$.fn.purpleUiTable = function(params) {
 		//For each target of the plugin...
 		$(this).each(function() {
 			//Start of code plugin
-			$(this).html(generateTable(list, columns));
+			$(this).html(generateTable(params));
 			//End of code plugin
 		});
 	};

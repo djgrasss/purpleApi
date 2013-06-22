@@ -27,9 +27,7 @@ class fruitDao extends abstractDao implements IDao
 				);
 		}
 
-    	return new PersistenceEntity($returnObj, time());
-
-
+    	return new PersistenceEntity($returnObj, $this->getEntityListTimestamp());
 	}
 
 	/**
@@ -37,15 +35,13 @@ class fruitDao extends abstractDao implements IDao
 	**/
 	public function listFruitEntitiesLongTimePooling($clientListTime)
 	{
-	    /*//Long time polling stuff : user wait if his version is up to date
-	    do {
-	        $localTime = $this->context->getCreationTime();
+	    //Long time polling stuff : user wait if his version is up to date
+	     do {
+	        $localTime = $this->getEntityListTimestamp();
 	        clearstatcache();
-	        usleep(10000);
-	    } while ($clientListTime == $localTime);
-	    
-	    return $this->listFruitEntities();*/
-	    return 'NOTAVAILABLE';
+	        usleep(300000);
+	     } while ($clientListTime == $localTime);
+	    return $this->listFruitEntities();
 	}	
 
 
@@ -54,7 +50,9 @@ class fruitDao extends abstractDao implements IDao
 	**/
 	public function addFruitEntity($FruitEntity)
 	{
+		$this->setEntityListTimestamp();
 		$this->context->addEntity($this->tableName, $FruitEntity);
+		$this->setEntityListTimestamp();
 	}
 
 	
@@ -63,7 +61,31 @@ class fruitDao extends abstractDao implements IDao
 	**/
 	public function removeFruitEntity($fruitId)
 	{
+		$this->setEntityListTimestamp();
 		$this->context->removeEntity($this->tableName, $fruitId);
+		$this->setEntityListTimestamp();
+	}
+
+
+
+
+	//
+	// TODO : this is crap, extract $_SESSION to use a persistence store abstraction
+	//
+	public function getEntityListTimestamp()
+	{
+		$filename = 'tmp.txt';
+
+		if (!file_exists($filename))
+			$time = $this->setEntityListTimestamp();
+		
+		$time = file_get_contents('tmp.txt');
+		return $time;
+	}
+
+	private function setEntityListTimestamp()
+	{
+		file_put_contents('tmp.txt', time());
 	}
 }
 ?>

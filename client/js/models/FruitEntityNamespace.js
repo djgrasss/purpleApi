@@ -67,7 +67,7 @@ var FruitEntityNamespace = function(ko, koPurple, securityObj)
                 },
                 'GET'
                 ,function() {
-					
+					setTimeout(self.fetchFruitsTableRealtime, 1000);	
                 }
             );
     };

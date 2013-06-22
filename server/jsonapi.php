@@ -103,9 +103,7 @@ class jsonApi extends abstractJsonApi
     **/
     public function fruitlistpersistentAction() 
     {
-        $clientListTime = purpleTools::sanitizeString(
-            isset($_GET['generationTime']) ? $_GET['generationTime'] : ''
-        );
+        $clientListTime = purpleTools::sanitizeString(isset($_GET['generationTime']) ? $_GET['generationTime'] : '');
         return self::$container->fruitEntityDao->listFruitEntitiesLongTimePooling($clientListTime);
     }
     

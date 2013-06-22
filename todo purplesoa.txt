@@ -1,8 +1,0 @@
-Make an autocomplete to return the filtered data list
-fluent sample for data querying
-	http://go.aopphp.com/blog/2013/03/19/implementing-fluent-interface-pattern-in-php/
-	http://phplinq.codeplex.com/
-
-http://j4mie.github.io/idiormandparis/
-
-aaa

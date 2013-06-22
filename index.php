@@ -76,7 +76,19 @@
 
     <!-- Users page -->
     <div class='container' data-bind="visible:spaObj.CurrentPageKey() == 'Users'">
-        <div data-bind="data:userEntityObj.UserList, purpleTable:{columns:['username']}">AAA</div>
+        
+        <table class='table table-striped table-bordered'>
+            <thead>
+                <tr class="tableRow" data-bind="createTheadRow: userEntityObj.UserList()[0]"></tr>
+            </thead>
+            <tbody data-bind="foreach:userEntityObj.UserList">
+                <tr class="tableRow" data-bind="createTbodyRow: $data">
+                    <td>fOObAr</td>
+                </tr>
+            </tbody>
+        </table>
+
+
     </div>
 </body>
 </html>
