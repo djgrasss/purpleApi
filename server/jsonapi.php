@@ -19,32 +19,23 @@ include_once('classes/abstractJsonApi.class.php');
 **/
 class jsonApi extends abstractJsonApi
 {
-    //
-    // Private
-    //
-
-    /* Riles to include to play with */
+    /* Files to include */
     protected $dependencies =
         [
             'classes/purpleDebug.class.php'
             ,'classes/purpleTools.class.php'
             ,'classes/purpleIoc.class.php'
-            ,'classes/persistenceLayer.class.php'
-            ,'interfaces/IDao.interface.php'
-            ,'models/FruitEntity.class.php'
-            ,'models/PersistenceEntity.class.php'
             //,'classes/purpleUi.class.php'
             //,'classes/purpleMath.class.php'
+            ,'models/FruitEntity.class.php'
+            ,'models/PersistenceEntity.class.php'
+            ,'models/securedPackageEntity.class.php'
+            ,'dao/persistenceDao.class.php'
             ,'dao/databaseDao.class.php'
-            ,'classes/abstractDao.class.php'
+            ,'dao/abstractDao.class.php'
             ,'dao/userDao.class.php'
             ,'dao/fruitDao.class.php'
-            ,'models/securedPackageEntity.class.php'
         ];
-
-    //
-    // Public
-    //
 
     /**
      * Ioc container used for classes persistence 
@@ -59,10 +50,14 @@ class jsonApi extends abstractJsonApi
     {
         parent::__construct();
 
-        // IOC
+        // 
+        // IOC binding Declaration
+        // 
         self::$container = new purpleIoc();
+        // Set the db context and the persistence object
         self::$container->context = new databaseDao('sqlite:../server/sqlitedb/fruits.sqlite');
-        // self::$container->context = new persistenceLayer('/purpleApi/server/cache/');
+        self::$container->persistence = new persistenceDao('cache/persistence.txt');
+        // Set the dao's
         self::$container->fruitEntityDao = new fruitDao();
         self::$container->userDao = new userDao();
         
@@ -129,7 +124,6 @@ class jsonApi extends abstractJsonApi
     public function removefruitAction() 
     {
         $secEntityData = new securedPackageEntity($_POST);
-
         if (self::$container->userDao->isauthorized($secEntityData))
         {
             self::$container->fruitEntityDao->removeFruitEntity($secEntityData->data['FruitId']);

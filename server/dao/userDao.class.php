@@ -26,8 +26,6 @@ class userDao extends abstractDao
 			$this->context->listEntities('users')
 		);*/
 
-		parent::__construct();
-
 		// Security layer
         $this->securityDao = new purpleSecure();
 

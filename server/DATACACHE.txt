@@ -1,1 +1,0 @@
-O:8:"stdClass":2:{s:4:"data";O:8:"stdClass":1:{s:9:"FruitList";a:1:{i:0;O:11:"FruitEntity":4:{s:2:"Id";i:1;s:4:"Name";s:11:"AlloLeMonde";s:8:"Quantity";s:2:"12";s:6:"TypeId";s:1:"1";}}}s:14:"generationTime";i:1371595920;}

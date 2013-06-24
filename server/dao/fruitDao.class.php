@@ -2,7 +2,7 @@
 /**
  * 
 **/
-class fruitDao extends abstractDao implements IDao
+class fruitDao extends abstractDao
 {
 
 	private $tableName = 'fruits';
@@ -50,7 +50,6 @@ class fruitDao extends abstractDao implements IDao
 	**/
 	public function addFruitEntity($FruitEntity)
 	{
-		$this->setEntityListTimestamp();
 		$this->context->addEntity($this->tableName, $FruitEntity);
 		$this->setEntityListTimestamp();
 	}
@@ -61,7 +60,6 @@ class fruitDao extends abstractDao implements IDao
 	**/
 	public function removeFruitEntity($fruitId)
 	{
-		$this->setEntityListTimestamp();
 		$this->context->removeEntity($this->tableName, $fruitId);
 		$this->setEntityListTimestamp();
 	}
@@ -74,18 +72,14 @@ class fruitDao extends abstractDao implements IDao
 	//
 	public function getEntityListTimestamp()
 	{
-		$filename = 'tmp.txt';
-
-		if (!file_exists($filename))
-			$time = $this->setEntityListTimestamp();
-		
-		$time = file_get_contents('tmp.txt');
-		return $time;
+		/*if ($this->persistence->fruitListTimeStamp == null)
+			$this->setEntityListTimestamp();*/
+		return $this->persistence->fruitListTimeStamp;
 	}
 
 	private function setEntityListTimestamp()
 	{
-		file_put_contents('tmp.txt', time());
+		return $this->persistence->fruitListTimeStamp = time();
 	}
 }
 ?>

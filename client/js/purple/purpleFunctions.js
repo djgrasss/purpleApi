@@ -46,10 +46,10 @@ define(['tools/knockout','jquery'], function (ko, jQuery) {
                         callbackFunction(jsonData);  
                     }
                 ,error:
-                    function(XMLHttpRequest, textStatus, errorThrown)
+                    function(xMLHttpRequest, textStatus, errorThrown)
                     {
                         if (errorCallbackFunction != null)
-                            errorCallbackFunction();
+                            errorCallbackFunction(xMLHttpRequest, textStatus, errorThrown);
                     }
             });
             

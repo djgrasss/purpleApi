@@ -66,8 +66,10 @@ var FruitEntityNamespace = function(ko, koPurple, securityObj)
                     setTimeout(self.fetchFruitsTableRealtime, 1);
                 },
                 'GET'
-                ,function() {
-					setTimeout(self.fetchFruitsTableRealtime, 1000);	
+                ,function(jqXHR, textStatus, errorThrown) {
+                	//If it's not an abort error, relaunch the long time polling
+                	if (textStatus != 'abort')
+						setTimeout(self.fetchFruitsTableRealtime, 1000);
                 }
             );
     };
