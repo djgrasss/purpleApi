@@ -62,16 +62,54 @@
             </tbody>
         </table>
 
-        <div data-bind="visible:securityObj.IsLogged()">        
-            <label>Fruit</label>
-            <input type='text' data-bind='value:fruitEntityObj.FruitEntity.Name' />
-            <label>Quantity</label>
-            <input type='text' data-bind='value:fruitEntityObj.FruitEntity.Quantity' />
-            <label>Type</label>
-            <input type="text" data-bind="value:fruitEntityObj.FruitEntity.TypeId, autoComplete:{url:'server/jsonapi.php?action=FRUITTYPELIST', backFunction:$root.FruitTypeAutocompleteSelect}">
-            <br />
-            <button class='btn btn-primary' data-bind="click:fruitEntityObj.submitAddLine">Add</button>    
+        <div class='row-fluid' data-bind="visible:securityObj.IsLogged()">
+            <div class='span8'>
+                <div class='form-horizontal'>
+                    <fieldset>
+                        <legend>Create a Fruit</legend>
+                        <div class='control-group'>
+                            <label class='control-label'>Fruit</label>
+                            <div class='controls'>
+                                <input type='text' data-bind='value:fruitEntityObj.FruitEntity.Name' />
+                            </div>
+                        </div>
+                        <div class='control-group'>
+                            <label class='control-label'>Quantity</label>
+                            <div class='controls'>
+                                <input type='text' data-bind='value:fruitEntityObj.FruitEntity.Quantity' />
+                            </div>
+                        </div>
+                        <div class='control-group'>
+                            <label class='control-label'>Type</label>
+                            <div class='controls'>
+                                <input type="text" data-bind="value:fruitEntityObj.FruitEntity.TypeId, autoComplete:{url:'server/jsonapi.php?action=FRUITTYPELIST', backFunction:$root.FruitTypeAutocompleteSelect}">
+                            </div>
+                        </div>
+                        <div class='control-group'>
+                            <div class='controls'>
+                                <button class='btn btn-primary' data-bind="click:fruitEntityObj.submitAddLine">Add</button>    
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class='span4'>
+                <div class='form-horizontal'>
+                    <!-- #Fruits page name needed to redirect to the proper page -->
+                    <form action='#Fruits' data-bind="submit: doSomething">
+                        <fieldset>
+                            <legend>Upload</legend>
+
+                            <button type="submit">Submit</button>
+                        </fieldset>
+                    </form>
+                </div>
+
+            </div>
         </div>
+
+
+        
     </div>
 
     <!-- Users page -->

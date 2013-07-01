@@ -85,8 +85,15 @@ define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityO
             loadPageSpecificStuff(spaObj.CurrentPageKey());
             
 
-            //self.securityObj.UserLogin(); console.log('===USERLOGINMOCKED===');
+            self.securityObj.UserLogin(); console.log('===USERLOGINMOCKED===');
         };
+
+
+        self.doSomething = function() {
+            console.log('fuckyeah');
+            return false;
+        };
+
 
         /** Callback function of the autocomplete **/
         self.FruitTypeAutocompleteSelect = function(data) { /*console.log(data);*/ };

@@ -25,6 +25,7 @@ class jsonApi extends abstractJsonApi
             'classes/purpleDebug.class.php'
             ,'classes/purpleTools.class.php'
             ,'classes/purpleIoc.class.php'
+            //,'classes/mailSender.class.php'
             //,'classes/purpleUi.class.php'
             //,'classes/purpleMath.class.php'
             ,'models/FruitEntity.class.php'
