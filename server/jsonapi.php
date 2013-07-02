@@ -13,9 +13,6 @@ include_once('classes/abstractJsonApi.class.php');
  * @version : 0.4
  * @author : eka808 - http://www.yoannmagli.ch
  * 
- * @todo : long time pooling for database store
- * @todo : finish implement authorizations
- * 
 **/
 class jsonApi extends abstractJsonApi
 {
@@ -164,6 +161,20 @@ class jsonApi extends abstractJsonApi
     public function userlistAction()
     {
         return self::$container->userDao->ListUsersPublic();
+    }
+
+    //
+    // UPLOAD
+    //
+    public function fruituploadAction()
+    {
+        if (isset($_FILES))
+        foreach($_FILES as $file)
+        if (move_uploaded_file($file['tmp_name'], '../upload/'.$file['name']))
+        {
+             return "Ok";
+        }
+        return "Error";
     }
 }
 $app = new jsonApi();

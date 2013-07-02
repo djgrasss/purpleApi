@@ -10,6 +10,7 @@ var dependencies =
         ,'models/SecurityNamespace'
         ,'models/FruitEntityNamespace'
         ,'models/UserEntityNamespace'
+        ,'tools/jqueryform'
     ];
 define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityObj, fruitEntityObj, userEntityObj) {
     var myViewModel = function() {
@@ -32,7 +33,7 @@ define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityO
         //
         
         var baseServiceUrl;
-        var useRealTime = true;
+        var useRealTime = false;
         var authenticationCallbackFunction = function(data)
         {
             notificationsObj.AddNotification(data);
@@ -89,8 +90,25 @@ define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityO
         };
 
 
-        self.doSomething = function() {
-            console.log('fuckyeah');
+        self.submitUpload = function(formData) {
+            $(formData).ajaxSubmit({
+                url:baseServiceUrl + '?action=FRUITUPLOAD'
+                ,type:'POST'
+                // ,dataType: "text"
+                // ,headers: { "Content-Disposition": "attachment; filename=" + 'fileName' }
+                ,beforeSubmit:function(a,b,c){
+                    console.log('beforeSubmit',a,b,c);
+                }
+                ,uploadProgress:function(a,b,c){
+                    console.log('uploadProgress',a,b,c);
+                }
+                ,success:function(a,b,c){
+                    console.log('success',a,b,c);
+                }
+                ,error:function(a,b,c){
+                    console.log('error',a,b,c);
+                }
+            }); 
             return false;
         };
 

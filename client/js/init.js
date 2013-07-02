@@ -14,7 +14,6 @@ var includes = [
     ,"tools/bootstrap"
     ,"behavior"
     ,"purple/knockoutExtensions"
-    //,"models/test"
 ];
 
 require(

@@ -28,7 +28,7 @@
     </div>
 
     <script type="text/html" id="alertTemplate">
-    <div class="alert">
+    <div class='alert'>
         <button type="button" class="close" data-bind="click:$root.submitRemoveNotification">&times;</button>
         <span data-bind="text:note"></span>
     </div>    
@@ -63,7 +63,7 @@
         </table>
 
         <div class='row-fluid' data-bind="visible:securityObj.IsLogged()">
-            <div class='span8'>
+            <div class='span6'>
                 <div class='form-horizontal'>
                     <fieldset>
                         <legend>Create a Fruit</legend>
@@ -93,22 +93,30 @@
                     </fieldset>
                 </div>
             </div>
-            <div class='span4'>
+            <div class='span6'>
                 <div class='form-horizontal'>
                     <!-- #Fruits page name needed to redirect to the proper page -->
-                    <form action='#Fruits' data-bind="submit: doSomething">
+                    <form action='#Fruits' data-bind="submit: submitUpload" enctype="multipart/form-data">
                         <fieldset>
                             <legend>Upload</legend>
-
-                            <button type="submit">Submit</button>
+                            <div class="control-group">
+                                <label class="control-label" for="description">File</label>
+                                <div class="controls">
+                                    <input name='foo' type="file" id="file" >
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <div class="controls">
+                                    <button type="submit" class='btn btn-primary'>Upload</button>
+                                </div>
+                            </div>
+                            
                         </fieldset>
                     </form>
                 </div>
 
             </div>
         </div>
-
-
         
     </div>
 
