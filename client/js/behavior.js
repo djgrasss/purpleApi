@@ -97,17 +97,22 @@ define(dependencies, function (ko, koPurple, notificationsObj, spaObj, securityO
                 // ,dataType: "text"
                 // ,headers: { "Content-Disposition": "attachment; filename=" + 'fileName' }
                 ,beforeSubmit:function(a,b,c){
-                    console.log('beforeSubmit',a,b,c);
+                    $(b).before("<div class='progress progress-striped active'><div class='bar' id='uploadStatus' style='width:0%;'></div></div>");
+                    // console.log(b,c);
+
                 }
-                ,uploadProgress:function(a,b,c){
-                    console.log('uploadProgress',a,b,c);
+                ,uploadProgress:function(progressObj){
+                    var percentage = Math.round((progressObj.position / progressObj.total) * 10000) / 100;
+                    //console.log(percentage);
+
+                    $('#uploadStatus').css({width:percentage+'%'});
                 }
                 ,success:function(a,b,c){
-                    console.log('success',a,b,c);
+                    $('#uploadStatus').parent().remove();
                 }
-                ,error:function(a,b,c){
+                /*,error:function(a,b,c){
                     console.log('error',a,b,c);
-                }
+                }*/
             }); 
             return false;
         };
