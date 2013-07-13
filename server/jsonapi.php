@@ -22,6 +22,7 @@ class jsonApi extends abstractJsonApi
             'classes/purpleDebug.class.php'
             ,'classes/purpleTools.class.php'
             ,'classes/purpleIoc.class.php'
+            ,'classes/sendFile.class.php'
             //,'classes/mailSender.class.php'
             //,'classes/purpleUi.class.php'
             //,'classes/purpleMath.class.php'
@@ -169,10 +170,13 @@ class jsonApi extends abstractJsonApi
     public function fruituploadAction()
     {
         if (isset($_FILES))
-        foreach($_FILES as $file)
-        if (move_uploaded_file($file['tmp_name'], '../upload/'.$file['name']))
+        foreach($_FILES as $curFile)
         {
-             return "Ok";
+            $file = new sendFile($curFile);
+            if ($file->setPath('../upload/')->setFileName($curFile['name'])->uploadFile())
+                return "Ok";
+            else
+                break;
         }
         return "Error";
     }
